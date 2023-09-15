@@ -194,7 +194,7 @@ class ClassifierModule(nn.Module):
     def __init__(self, m, channel, num_classes):
         super(ClassifierModule, self).__init__()
         self.m = m
-        self.linear = nn.Linear(channel, num_classes)
+        self.linear = nn.Linear(channel, num_classes) # only linear layer is here, at exit of classifier thus we can use linear to determine where to exit.
 
     def forward(self, x):
         res = self.m(x[-1])
@@ -335,7 +335,7 @@ class MSDNet(nn.Module):
         )
         return ClassifierModule(conv, nIn, num_classes)
 
-    def forward(self, x, stage=None):
+    def forward(self, x, stage=None): # No gradient rescaling
         res = []
         for i in range(self.nBlocks):
             x = self.blocks[i](x)

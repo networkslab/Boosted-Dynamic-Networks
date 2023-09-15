@@ -373,9 +373,9 @@ class MSDNet(nn.Module):
         res = []
         for i in range(self.nBlocks):
             x = self.blocks[i](x)
-            x[-1] = gradient_rescale(x[-1], 1.0 / (self.nBlocks - i))
+            x[-1] = gradient_rescale(x[-1], 1.0 / (self.nBlocks - i)) # scale before passing to the classifier. This way when training the classifier, we are scaling
             pred, _ = self.classifier[i](x)
-            x[-1] = gradient_rescale(x[-1], (self.nBlocks - i - 1))
+            x[-1] = gradient_rescale(x[-1], (self.nBlocks - i - 1)) # unscale
             res.append(pred)
             if i == stage:
                 break

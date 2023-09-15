@@ -86,18 +86,19 @@ class DistributedSamplerWrapper(torch.utils.data.distributed.DistributedSampler)
 
 
 def get_dataloaders(args):
+    IMG_SIZE = 224
     train_loader, val_loader, test_loader = None, None, None
     if args.dataset == 'cifar10':
         normalize = transforms.Normalize(mean=[0.4914, 0.4824, 0.4467],
                                          std=[0.2471, 0.2435, 0.2616])
-        train_set = datasets.CIFAR10(args.data_root, train=True,
+        train_set = datasets.CIFAR10(args.data_root, train=True, download=True,
                                      transform=transforms.Compose([
                                         transforms.RandomCrop(32, padding=4),
                                         transforms.RandomHorizontalFlip(),
                                         transforms.ToTensor(),
                                         normalize
                                      ]))
-        val_set = datasets.CIFAR10(args.data_root, train=False,
+        val_set = datasets.CIFAR10(args.data_root, train=False, download=True,
                                    transform=transforms.Compose([
                                     transforms.ToTensor(),
                                     normalize
@@ -163,18 +164,14 @@ def get_dataloaders(args):
             train_loader = torch.utils.data.DataLoader(
                 train_set,
                 batch_size=args.batch_size,
-                sampler=train_sampler,
-                num_workers=args.workers,
-                pin_memory=True)
+                sampler=train_sampler,)
         if 'val' in args.splits:
             val_sampler = torch.utils.data.sampler.SubsetRandomSampler(train_set_index[-num_sample_valid:])
             if args.distributed:
                 val_sampler  = DistributedSamplerWrapper(val_sampler, shuffle=False)
             val_loader = torch.utils.data.DataLoader(
                 train_set, batch_size=args.batch_size,
-                sampler=val_sampler,
-                num_workers=args.val_workers,
-                pin_memory=True)
+                sampler=val_sampler)
         if 'test' in args.splits:
             if args.distributed:
                 test_sampler = torch.utils.data.distributed.DistributedSampler(val_set)
@@ -184,8 +181,6 @@ def get_dataloaders(args):
             test_loader = torch.utils.data.DataLoader(
                 val_set,
                 batch_size=args.batch_size,
-                num_workers=args.val_workers,
-                pin_memory=True,
                 **additional_args)
     else:
         if 'train' in args.splits:
@@ -197,8 +192,6 @@ def get_dataloaders(args):
             train_loader = torch.utils.data.DataLoader(
                 train_set,
                 batch_size=args.batch_size,
-                num_workers=args.workers,
-                pin_memory=True,
                 **additional_args)
         if 'val' in args.splits:
             if args.distributed:
@@ -209,8 +202,6 @@ def get_dataloaders(args):
             val_loader = torch.utils.data.DataLoader(
                 val_set,
                 batch_size=args.batch_size,
-                num_workers=args.val_workers,
-                pin_memory=True,
                 **additional_args)
             test_loader = val_loader
 

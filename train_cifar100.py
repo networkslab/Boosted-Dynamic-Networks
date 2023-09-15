@@ -44,7 +44,7 @@ def train(model, train_loader, optimizer, epoch, sum_writer):
     n_blocks = args.nBlocks * len(args.scale_list) if args.arch == 'ranet' else args.nBlocks
     for it, (x, y) in enumerate(train_loader):
         x, y = x.cuda(), y.cuda()
-        preds, pred_ensembles = model.forward_all(x, n_blocks - 1)
+        preds, pred_ensembles = model.forward_all(x, n_blocks - 1) # first output is the raw pred of each classifier, the second is the ensembled one.
         loss_all = 0
         for stage in range(n_blocks):
             # train weak learner
@@ -85,6 +85,7 @@ def main():
 
     backbone = model_func(args)
     n_flops, n_params = measure_model(backbone, 32, 32)
+    print(f'FLOPS {n_flops}')
     torch.save(n_flops, os.path.join(args.result_dir, 'flops.pth'))
     n_blocks = args.nBlocks * len(args.scale_list) if args.arch == 'ranet' else args.nBlocks
     for i in range(n_blocks):
@@ -96,7 +97,7 @@ def main():
     if args.arch == 'ranet':
         model = dynamic_net_ranet(backbone, args).cuda_all()
     else:
-        model = dynamic_net(backbone, args).cuda_all()
+        model = dynamic_net(backbone, args).cuda_all() # MSDNet
     train_loader, val_loader, _ = get_dataloaders(args)
 
     if args.arch != 'ranet':
@@ -123,6 +124,7 @@ def main():
         scheduler.load_state_dict(ckpt['scheduler'])
 
     best_accu = -1
+    val_accs = []
     for epoch in range(start_epoch, args.epochs):
         logging.info(f'epoch {epoch}')
 
@@ -132,6 +134,7 @@ def main():
         accus_test = test(model, val_loader)
         for i, accu in enumerate(accus_test):
             log_step((epoch + 1) * len(train_loader), f'stage_{i}_accu', accu, sum_writer)
+
 
         accus_train = test(model, train_loader)
         for i, accu in enumerate(accus_train):
