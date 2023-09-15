@@ -89,7 +89,7 @@ class DynamicNet(object):
         outs = self.model(x, stage)
         preds = [0]
         for i in range(len(outs)):
-            pred = (outs[i] + preds[-1]) * self.reweight[i]
+            pred = (outs[i] + preds[-1]) * self.reweight[i] # ensembling
             preds.append(pred)
             if i == stage:
                 break

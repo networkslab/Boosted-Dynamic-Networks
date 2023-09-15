@@ -1,13 +1,13 @@
 #!/bin/bash
 
 curr_dir="$( cd "$(dirname "$0")" ; pwd -P )"
-train_id="exp0_msdge_cifar100_any"
-result_dir="${curr_dir}/../results/boostnet/$train_id"
+train_id="exp0_msdge_cifar10_any"
+result_dir=$"/home/joud/code/relu_analysis/Boosted-Dynamic-Networks/results/boostnet$train_id"
 mkdir -p $result_dir
 
 python3 ../train_cifar100.py \
-    --data-root ${curr_dir}/../data/cifar100 \
-    --dataset cifar100 \
+    --data-root /home/joud/code/relu_analysis/Boosted-Dynamic-Networks/data/cifar10 \
+    --dataset cifar10 \
     --result_dir $result_dir \
     --arch msdnet_ge \
     --ensemble_reweight 0.5 \

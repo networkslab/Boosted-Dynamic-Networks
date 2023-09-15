@@ -4,7 +4,7 @@ curr_dir="$( cd "$(dirname "$0")" ; pwd -P )"
 train_id="exp0_msdge_cifar100"
 
 python3 ../eval_cifar100.py \
-    --data-root ${curr_dir}/../data/cifar100 \
+    --data-root /home/joud/code/relu_analysis/Boosted-Dynamic-Networks/data/cifar100 \
     --dataset cifar100 \
     --result_dir "${curr_dir}/../results/boostnet/$train_id" \
     --arch msdnet_ge \
